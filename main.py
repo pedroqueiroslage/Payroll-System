@@ -1,1 +1,5 @@
-print('renato cariani')
+from abc import ABC, abstractmethod
+
+
+class Funcionario(ABC):
+    pass
