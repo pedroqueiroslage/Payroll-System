@@ -33,6 +33,9 @@ class Funcionario(ABC):
     def cad_funcionario(self):
         pass
 
+    def rem_funcionario(self):
+        pass
+
     def relatorio(self):
         pass
 
@@ -54,14 +57,23 @@ class Horista(Funcionario):
 
 
 class Mensalista(Funcionario):
+    def __init__(self, nome, sal_bruto):
+        super().__init__(nome)
+        self.sal_bruto = sal_bruto
+
     def calc_sal(self):
-        pass
+        self.calc_inss()
+        self.sal_liq = self.sal_bruto - self.desc_inss
+        print(self.sal_liq)
 
 
 def main():
-    p = str(input('Qual tipo de funcionario?\nH = Horista\nM = Mensalista\n'))
+    p = str(input('Qual tipo de funcionario?\nH = Horista\nM = Mensalista\n').strip()[0]).upper()
     if p == 'H':
         p1 = Horista('Pedro', 50, 100)
+        p1.calc_sal()
+    else:
+        p1 = Mensalista('Pedro', 6000)
         p1.calc_sal()
 
 
