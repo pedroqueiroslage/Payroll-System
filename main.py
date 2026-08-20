@@ -40,13 +40,32 @@ class Funcionario(ABC):
 
     def cad_funcionario(self):
         try:
+            self.calc_sal()
             with open('Funcionarios.txt', 'a', encoding='utf-8') as arq:
-                arq.write(f'{self.nome} | R${self.sal_liq} | {self.__class__.__name__}\n')
+                arq.write(f'{self.nome} | R${self.sal_liq:.2f} | {self.__class__.__name__}\n')
         except Exception as e:
             print(f'ERRO {e}')
 
     def rem_funcionario(self):
-        pass
+        try:
+            novas_linhas = []
+            with open('Funcionarios.txt', 'r', encoding='utf-8') as arq:
+                linhas = arq.readlines()
+                for c in linhas:
+                    if not c.strip():
+                        continue
+                    dados = c.strip().split(' | ')
+                    nome = dados[0]
+                    cargo = dados[-1]
+                    if nome.lower() == self.nome and cargo == self.__class__.__name__:
+                        pass
+                    else:
+                        novas_linhas.append(c)
+            with open('Funcionarios.txt', 'w', encoding='utf-8') as arq:
+                for linhas in novas_linhas:
+                    arq.write(linhas)
+        except Exception as e:
+            print(f'ERRO {e}')
 
     def relatorio(self):
         pass
@@ -65,7 +84,6 @@ class Horista(Funcionario):
         self.sal_bruto = self.val_hora * self.hrs_trab
         self.calc_inss()
         self.sal_liq = self.sal_bruto - self.desc_inss
-        print(self.sal_liq)
 
 
 class Mensalista(Funcionario):
@@ -76,25 +94,56 @@ class Mensalista(Funcionario):
     def calc_sal(self):
         self.calc_inss()
         self.sal_liq = self.sal_bruto - self.desc_inss
-        print(self.sal_liq)
+
+
+class Menu:
+    def __init__(self):
+        conteudo = ('[blue]Welcome to the Payroll System![/]\nO que deseja fazer?\n'
+                    '1 = Registrar novos funcionários\n2 = Remover funcionário\n'
+                    '3 = Ver relatório da empresa\n4 = Ver resumo da folha salárial?\n'
+                    '0 = Fechar sistema')
+        print(Panel(conteudo, width=50, title='Payroll System'))
 
 
 def main():
     while True:
-        try:
-            p = str(input('Qual tipo de funcionario?\nH = Horista\nM = Mensalista\n').strip()[0]).upper()
+        Menu()
+        p1 = input('>>> ')
+        if p1 == '1':
+            try:
+                p = str(input('Qual tipo de funcionario deseja registrar?\nH = Horista\nM = '
+                              'Mensalista\n').strip()[0]).upper()
+                if p == 'H':
+                    func = str(input('Seu nome: '))
+                    vlrh = int(input('Valor da hora trabalhada: R$'))
+                    hrt = int(input('Quantas horas trabalhadas: '))
+                    p1 = Horista(f'{func}', vlrh, hrt)
+                    p1.cad_funcionario()
+                elif p == 'M':
+                    func = str(input('Seu nome: '))
+                    slr = int(input('Salário bruto: R$'))
+                    p1 = Mensalista(f'{func}', slr)
+                    p1.cad_funcionario()
+                else:
+                    print('[red]Resposta Inválida![/]')
+            except Exception as e:
+                print(f'ERRO {e}')
+                break
+        elif p1 == '2':
+            p = str(input('Qual tipo de funcionario deseja remover?\nH = Horista\nM = '
+                          'Mensalista\n').strip()[0]).upper()
             if p == 'H':
-                p1 = Horista('Pedro', 50, 100)
-                p1.calc_sal()
+                func = str(input('Seu nome: '))
+                p1 = Horista(f'{func}', 0, 0)
+                p1.rem_funcionario()
             elif p == 'M':
-                p1 = Mensalista('Pedro', 6000)
-                p1.calc_sal()
-                p1.analisar_sal()
-                p1.cad_funcionario()
+                func = str(input('Seu nome: '))
+                p1 = Mensalista(f'{func}', 0)
+                p1.rem_funcionario()
             else:
                 print('[red]Resposta Inválida![/]')
-        except Exception as e:
-            print(f'ERRO {e}')
+        elif p1 == '0':
+            print('[blue]Fechando Sistema...[/]')
             break
 
 
