@@ -10,6 +10,11 @@ class Funcionario(ABC):
         self.sal_bruto = 0.0
         self.desc_inss = 0.0
         self.sal_liq = 0.0
+        try:
+            with open('Funcionarios.txt', 'a', encoding='utf-8'):
+                pass
+        except Exception as e:
+            print(f'ERRO {e}')
 
     def calc_inss(self):
         if self.sal_bruto <= 1412:
@@ -34,7 +39,11 @@ class Funcionario(ABC):
         print(Panel(conteudo, width=40))
 
     def cad_funcionario(self):
-        pass
+        try:
+            with open('Funcionarios.txt', 'a', encoding='utf-8') as arq:
+                arq.write(f'{self.nome} | R${self.sal_liq} | {self.__class__.__name__}\n')
+        except Exception as e:
+            print(f'ERRO {e}')
 
     def rem_funcionario(self):
         pass
@@ -81,6 +90,7 @@ def main():
                 p1 = Mensalista('Pedro', 6000)
                 p1.calc_sal()
                 p1.analisar_sal()
+                p1.cad_funcionario()
             else:
                 print('[red]Resposta Inválida![/]')
         except Exception as e:
