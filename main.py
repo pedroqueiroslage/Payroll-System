@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from rich import print
-#   from rich.panel import Panel
+from rich.panel import Panel
 
 
 class Funcionario(ABC):
@@ -28,7 +28,10 @@ class Funcionario(ABC):
         pass
 
     def analisar_sal(self):
-        pass
+        spm = self.sal_liq / self.sal_min
+        conteudo = (f'O salário de {self.nome} é de R${self.sal_liq:.2f} e corresponde á {spm:.2f} salários'
+                    f' mínimos!').replace('.', ',')
+        print(Panel(conteudo, width=40))
 
     def cad_funcionario(self):
         pass
@@ -68,13 +71,21 @@ class Mensalista(Funcionario):
 
 
 def main():
-    p = str(input('Qual tipo de funcionario?\nH = Horista\nM = Mensalista\n').strip()[0]).upper()
-    if p == 'H':
-        p1 = Horista('Pedro', 50, 100)
-        p1.calc_sal()
-    else:
-        p1 = Mensalista('Pedro', 6000)
-        p1.calc_sal()
+    while True:
+        try:
+            p = str(input('Qual tipo de funcionario?\nH = Horista\nM = Mensalista\n').strip()[0]).upper()
+            if p == 'H':
+                p1 = Horista('Pedro', 50, 100)
+                p1.calc_sal()
+            elif p == 'M':
+                p1 = Mensalista('Pedro', 6000)
+                p1.calc_sal()
+                p1.analisar_sal()
+            else:
+                print('[red]Resposta Inválida![/]')
+        except Exception as e:
+            print(f'ERRO {e}')
+            break
 
 
 if __name__ == '__main__':
