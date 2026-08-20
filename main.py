@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from rich import print
 from rich.panel import Panel
+from rich.table import Table
 
 
 class Funcionario(ABC):
@@ -10,6 +11,8 @@ class Funcionario(ABC):
         self.sal_bruto = 0.0
         self.desc_inss = 0.0
         self.sal_liq = 0.0
+        self.soma_bruto = 0
+        self.soma_inss = 0
         try:
             with open('Funcionarios.txt', 'a', encoding='utf-8'):
                 pass
@@ -26,6 +29,8 @@ class Funcionario(ABC):
         else:
             aliquota = 0.14
         self.desc_inss = self.sal_bruto * aliquota
+        self.soma_bruto += self.sal_bruto
+        self.soma_inss += self.desc_inss
         return self.desc_inss
 
     @abstractmethod
@@ -57,7 +62,7 @@ class Funcionario(ABC):
                     dados = c.strip().split(' | ')
                     nome = dados[0]
                     cargo = dados[-1]
-                    if nome.lower() == self.nome and cargo == self.__class__.__name__:
+                    if nome.lower() == self.nome.lower() and cargo == self.__class__.__name__:
                         pass
                     else:
                         novas_linhas.append(c)
@@ -67,11 +72,29 @@ class Funcionario(ABC):
         except Exception as e:
             print(f'ERRO {e}')
 
-    def relatorio(self):
-        pass
+    @classmethod
+    def relatorio(cls):
+        try:
+            table = Table(title='Relatório Geral de Funcionarios')
+            table.add_column('Nome', style='cyan')
+            table.add_column('Salário', style='green')
+            table.add_column('Tipo', style='magenta')
+            with open('Funcionarios.txt', 'r', encoding='utf-8') as arq:
+                linhas = arq.readlines()
+                for c in linhas:
+                    if not c.strip():
+                        continue
+                    dados = c.strip().split(' | ')
+                    if len(dados) == 3:
+                        table.add_row(dados[0], dados[1], dados[2], )
+            print(table)
+        except FileNotFoundError:
+            print('Não há funcionários registrados!')
+        except Exception as e:
+            print(f'ERRO {e}')
 
     def res_empresa(self):
-        pass
+        print(f'soma salarios brutos {self.soma_bruto} soma inss {self.soma_inss}')
 
 
 class Horista(Funcionario):
@@ -100,7 +123,7 @@ class Menu:
     def __init__(self):
         conteudo = ('[blue]Welcome to the Payroll System![/]\nO que deseja fazer?\n'
                     '1 = Registrar novos funcionários\n2 = Remover funcionário\n'
-                    '3 = Ver relatório da empresa\n4 = Ver resumo da folha salárial?\n'
+                    '3 = Ver relatório da empresa\n4 = Ver resumo da folha salárial\n'
                     '0 = Fechar sistema')
         print(Panel(conteudo, width=50, title='Payroll System'))
 
@@ -142,6 +165,10 @@ def main():
                 p1.rem_funcionario()
             else:
                 print('[red]Resposta Inválida![/]')
+        elif p1 == '3':
+            Funcionario.relatorio()
+        elif p1 == '4':
+            Funcionario.res_empresa()
         elif p1 == '0':
             print('[blue]Fechando Sistema...[/]')
             break
