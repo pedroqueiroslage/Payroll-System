@@ -11,8 +11,6 @@ class Funcionario(ABC):
         self.sal_bruto = 0.0
         self.desc_inss = 0.0
         self.sal_liq = 0.0
-        self.soma_bruto = 0
-        self.soma_inss = 0
         try:
             with open('Funcionarios.txt', 'a', encoding='utf-8'):
                 pass
@@ -29,8 +27,6 @@ class Funcionario(ABC):
         else:
             aliquota = 0.14
         self.desc_inss = self.sal_bruto * aliquota
-        self.soma_bruto += self.sal_bruto
-        self.soma_inss += self.desc_inss
         return self.desc_inss
 
     @abstractmethod
@@ -47,7 +43,8 @@ class Funcionario(ABC):
         try:
             self.calc_sal()
             with open('Funcionarios.txt', 'a', encoding='utf-8') as arq:
-                arq.write(f'{self.nome} | R${self.sal_liq:.2f} | {self.__class__.__name__}\n')
+                arq.write(f'{self.nome} | R${self.sal_liq:.2f} | {self.__class__.__name__} | {self.sal_bruto:.2f} '
+                          f'| {self.desc_inss:.2f}\n')
         except Exception as e:
             print(f'ERRO {e}')
 
@@ -61,7 +58,7 @@ class Funcionario(ABC):
                         continue
                     dados = c.strip().split(' | ')
                     nome = dados[0]
-                    cargo = dados[-1]
+                    cargo = dados[2]
                     if nome.lower() == self.nome.lower() and cargo == self.__class__.__name__:
                         pass
                     else:
@@ -79,22 +76,38 @@ class Funcionario(ABC):
             table.add_column('Nome', style='cyan')
             table.add_column('Salário', style='green')
             table.add_column('Tipo', style='magenta')
+            table.add_column('Salário Bruto', style='yellow')
+            table.add_column('Desconto INSS', style='red')
             with open('Funcionarios.txt', 'r', encoding='utf-8') as arq:
                 linhas = arq.readlines()
                 for c in linhas:
                     if not c.strip():
                         continue
                     dados = c.strip().split(' | ')
-                    if len(dados) == 3:
-                        table.add_row(dados[0], dados[1], dados[2], )
+                    table.add_row(dados[0], dados[1], dados[2], dados[3], dados[4])
             print(table)
         except FileNotFoundError:
             print('Não há funcionários registrados!')
         except Exception as e:
             print(f'ERRO {e}')
 
-    def res_empresa(self):
-        print(f'soma salarios brutos {self.soma_bruto} soma inss {self.soma_inss}')
+    @classmethod
+    def res_empresa(cls):
+        soma_bruto = 0
+        soma_inss = 0
+        try:
+            with open('Funcionarios.txt', 'r', encoding='utf-8') as arq:
+                linhas = arq.readlines()
+                for c in linhas:
+                    if not c.strip():
+                        continue
+                    dados = c.strip().split(' | ')
+                    soma_bruto += float(dados[3])
+                    soma_inss += float(dados[4])
+        except Exception as e:
+            print(f'ERRO {e}')
+        finally:
+            print(f'soma salarios brutos {soma_bruto} soma inss {soma_inss}')
 
 
 class Horista(Funcionario):
@@ -172,6 +185,8 @@ def main():
         elif p1 == '0':
             print('[blue]Fechando Sistema...[/]')
             break
+        else:
+            print('[red]Resposta Inválida![/]')
 
 
 if __name__ == '__main__':
