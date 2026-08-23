@@ -61,6 +61,7 @@ class Funcionario(ABC):
 
     def rem_funcionario(self):
         try:
+            cont = 0
             novas_linhas = []
             with open('Funcionarios.txt', 'r', encoding='utf-8') as arq:
                 linhas = arq.readlines()
@@ -74,7 +75,11 @@ class Funcionario(ABC):
                         pass
                     else:
                         novas_linhas.append(c)
+                        cont += 1
+                    if cont == len(linhas):
+                        print('[red]Não há nenhum funcionário registrado com este nome no sistema![/]')
             with open('Funcionarios.txt', 'w', encoding='utf-8') as arq:
+                print('[blue]Funcionário removido com sucesso![/]')
                 for linhas in novas_linhas:
                     arq.write(linhas)
         except Exception as e:
@@ -118,7 +123,8 @@ class Funcionario(ABC):
         except Exception as e:
             print(f'ERRO {e}')
         finally:
-            print(f'soma salarios brutos {soma_bruto} soma inss {soma_inss}')
+            print(f'A soma dos salários brutos é de [green]R${soma_bruto:.2f}[/], enquanto o total equivalente '
+                  f'ao INSS é de [green]R${soma_inss}[/]!')
 
 
 class Horista(Funcionario):
@@ -149,7 +155,7 @@ class Menu:
                     '1 = Registrar novos funcionários\n2 = Remover funcionário\n'
                     '3 = Ver relatório da empresa\n4 = Ver resumo da folha salárial\n'
                     '5 = Analisar Salário\n0 = Fechar sistema')
-        print(Panel(conteudo, width=50, title='Payroll System'))
+        print(Panel(conteudo, width=45, title='Payroll System'))
 
 
 def main():
@@ -164,11 +170,13 @@ def main():
                     func = str(input('Seu nome: '))
                     vlrh = int(input('Valor da hora trabalhada: R$'))
                     hrt = int(input('Quantas horas trabalhadas: '))
+                    print('[yellow]Funcionário Registrado![/]')
                     p1 = Horista(f'{func}', vlrh, hrt)
                     p1.cad_funcionario()
                 elif p == 'M':
                     func = str(input('Seu nome: '))
                     slr = int(input('Salário bruto: R$'))
+                    print('[yellow]Funcionário Registrado![/]')
                     p1 = Mensalista(f'{func}', slr)
                     p1.cad_funcionario()
                 else:
