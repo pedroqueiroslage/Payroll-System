@@ -33,17 +33,28 @@ class Funcionario(ABC):
     def calc_sal(self):
         pass
 
-    def analisar_sal(self):
-        spm = self.sal_liq / self.sal_min
-        conteudo = (f'O salário de {self.nome} é de R${self.sal_liq:.2f} e corresponde á {spm:.2f} salários'
-                    f' mínimos!').replace('.', ',')
-        print(Panel(conteudo, width=40))
+    @classmethod
+    def analisar_sal(cls):
+        try:
+            with open('Funcionarios.txt', 'r', encoding='utf-8') as arq:
+                linhas = arq.readlines()
+                for c in linhas:
+                    if not c.strip():
+                        continue
+                    dados = c.strip().split(' | ')
+                    spm = float(dados[1]) / 1621
+                    conteudo = (
+                        f'O salário de {dados[0]} é de R${float(dados[1]):.2f} e corresponde á {spm:.2f} salários'
+                        f' mínimos!').replace('.', ',')
+                    print(Panel(conteudo, width=40))
+        except Exception as e:
+            print(f'ERRO {e}')
 
     def cad_funcionario(self):
         try:
             self.calc_sal()
             with open('Funcionarios.txt', 'a', encoding='utf-8') as arq:
-                arq.write(f'{self.nome} | R${self.sal_liq:.2f} | {self.__class__.__name__} | {self.sal_bruto:.2f} '
+                arq.write(f'{self.nome} | {self.sal_liq:.2f} | {self.__class__.__name__} | {self.sal_bruto:.2f} '
                           f'| {self.desc_inss:.2f}\n')
         except Exception as e:
             print(f'ERRO {e}')
@@ -84,7 +95,7 @@ class Funcionario(ABC):
                     if not c.strip():
                         continue
                     dados = c.strip().split(' | ')
-                    table.add_row(dados[0], dados[1], dados[2], dados[3], dados[4])
+                    table.add_row(dados[0], f'R${dados[1]}', dados[2], dados[3], dados[4])
             print(table)
         except FileNotFoundError:
             print('Não há funcionários registrados!')
@@ -137,7 +148,7 @@ class Menu:
         conteudo = ('[blue]Welcome to the Payroll System![/]\nO que deseja fazer?\n'
                     '1 = Registrar novos funcionários\n2 = Remover funcionário\n'
                     '3 = Ver relatório da empresa\n4 = Ver resumo da folha salárial\n'
-                    '0 = Fechar sistema')
+                    '5 = Analisar Salário\n0 = Fechar sistema')
         print(Panel(conteudo, width=50, title='Payroll System'))
 
 
@@ -182,6 +193,8 @@ def main():
             Funcionario.relatorio()
         elif p1 == '4':
             Funcionario.res_empresa()
+        elif p1 == '5':
+            Funcionario.analisar_sal()
         elif p1 == '0':
             print('[blue]Fechando Sistema...[/]')
             break
